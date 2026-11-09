@@ -1,5 +1,6 @@
 package de.metas.report.jasper;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import de.metas.logging.LogManager;
@@ -397,7 +398,8 @@ public class JasperEngine extends AbstractReportEngine
 				.build();
 	}
 
-	private ReportResult exportAsExcel(final JasperPrint jasperPrint) throws JRException
+	@VisibleForTesting
+	static ReportResult exportAsExcel(final JasperPrint jasperPrint) throws JRException
 	{
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
