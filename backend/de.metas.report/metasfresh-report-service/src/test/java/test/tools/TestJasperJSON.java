@@ -3,12 +3,13 @@ package test.tools;
 import ch.qos.logback.classic.Level;
 import de.metas.logging.LogManager;
 import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.query.JsonQLQueryExecuterFactory;
+import net.sf.jasperreports.pdf.JRPdfExporter;
+import net.sf.jasperreports.json.query.JsonQLQueryExecuterFactory;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.adempiere.ad.migration.logger.MigrationScriptFileLoggerHolder;
 import org.adempiere.ad.trx.api.ITrx;
@@ -75,8 +76,8 @@ public class TestJasperJSON
 
 		final JRPdfExporter exporter = new JRPdfExporter();
 		final String pdf_File = "E:/JSON_PDF_File.pdf";
-		exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, pdf_File);
-		exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+		exporter.setExporterInput(new SimpleExporterInput(print));
+		exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(pdf_File));
 		exporter.exportReport();
 		System.out.println("File Created: " + pdf_File);
 	}

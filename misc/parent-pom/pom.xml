@@ -59,7 +59,7 @@
         <jackson.version>2.14.1</jackson.version>
         <amqp-client.version>5.10.0</amqp-client.version>
 
-        <jasperreports.version>6.21.2</jasperreports.version>
+        <jasperreports.version>7.1.1</jasperreports.version>
 
         <itextpdf.version>5.5.13.3</itextpdf.version>
 
@@ -91,7 +91,7 @@
         <byte-buddy.version>1.12.20</byte-buddy.version>
         <objenesis.version>3.3</objenesis.version>
 
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.18.0</commons-io.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <guava.version>30.1.1-jre</guava.version>
 
@@ -186,6 +186,42 @@
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <!-- Since JasperReports 7, exporters, the JDT compiler, the JSON data source, barcodes and charts are separate modules -->
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-functions</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-jdt</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-pdf</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-excel-poi</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-json</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-barcode4j</artifactId>
+                <version>${jasperreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-charts</artifactId>
                 <version>${jasperreports.version}</version>
             </dependency>
 
@@ -846,7 +882,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
                         <version>2.6</version>
                         <configuration>
                             <!-- These are the default configurations: -->
-                            <compiler>net.sf.jasperreports.engine.design.JRJdtCompiler</compiler>
+                            <compiler>net.sf.jasperreports.jdt.JRJdtCompiler</compiler>
                             <sourceDirectory>src/main/jasperreports</sourceDirectory>
                             <outputDirectory>${project.build.directory}/jasper</outputDirectory>
                             <outputFileExt>.jasper</outputFileExt>
@@ -875,6 +911,22 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
                             <dependency>
                                 <groupId>net.sf.jasperreports</groupId>
                                 <artifactId>jasperreports-functions</artifactId>
+                                <version>${jasperreports.version}</version>
+                            </dependency>
+                            <!-- JasperReports 7 modules needed to compile our reports: the JDT compiler, barcodes and charts -->
+                            <dependency>
+                                <groupId>net.sf.jasperreports</groupId>
+                                <artifactId>jasperreports-jdt</artifactId>
+                                <version>${jasperreports.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>net.sf.jasperreports</groupId>
+                                <artifactId>jasperreports-barcode4j</artifactId>
+                                <version>${jasperreports.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>net.sf.jasperreports</groupId>
+                                <artifactId>jasperreports-charts</artifactId>
                                 <version>${jasperreports.version}</version>
                             </dependency>
                             <dependency>

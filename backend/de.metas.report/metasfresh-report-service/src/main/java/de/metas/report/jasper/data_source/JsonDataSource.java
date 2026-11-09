@@ -6,7 +6,7 @@ import de.metas.report.server.ReportConstants;
 import de.metas.report.server.ReportContext;
 import de.metas.util.StringUtils;
 import lombok.NonNull;
-import net.sf.jasperreports.engine.query.JsonQLQueryExecuterFactory;
+import net.sf.jasperreports.json.query.JsonQLQueryExecuterFactory;
 import org.adempiere.exceptions.AdempiereException;
 import org.springframework.stereotype.Component;
 

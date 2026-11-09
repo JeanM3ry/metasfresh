@@ -5,13 +5,13 @@ import org.apache.poi.ss.SpreadsheetVersion;
 import net.sf.jasperreports.engine.JRPropertiesUtil;
 import net.sf.jasperreports.engine.export.Cut;
 import net.sf.jasperreports.engine.export.CutsInfo;
-import net.sf.jasperreports.engine.export.JRXlsAbstractExporterParameter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.XlsReportConfiguration;
+import net.sf.jasperreports.poi.export.JRXlsExporter;
 
 /**
  * Extension of {@link JRXlsExporter} which implements our custom features. Mostly that's implementing {@link #PROPERTY_COLUMN_HIDDEN}.<br>
- * We do this by firstly, "registering" out own {@link net.sf.jasperreports.engine.export.JRXlsExporterNature} subclass,<br>
+ * We do this by firstly, "registering" out own {@link net.sf.jasperreports.poi.export.JRXlsExporterNature} subclass,<br>
  * and by secondly setting individual columns to be hidden, when the sheet is created.
  *
  *
@@ -29,35 +29,43 @@ public class MetasJRXlsExporter extends JRXlsExporter
 	 */
 	public static final String PROPERTY_COLUMN_HIDDEN = JRPropertiesUtil.PROPERTY_PREFIX + "export.xls.column.hidden";
 
+	/**
+	 * Password used to protect the locked cells when the report does not specify one.
+	 * <p>
+	 * NOTE: if no password is set, the cells which are marked as locked won't be locked.
+	 * NOTE2: instead of using a random password, it's better to have a well known one because we are setting the password only to protect the cells from writting and NOT to secure the document.
+	 */
+	public static final String DEFAULT_PASSWORD = "unlock";
+
 	public MetasJRXlsExporter()
 	{
 		super();
-		setStandardParameters();
 	}
 
 	/**
-	 * Configure standard parameters.
+	 * Creates our standard configuration.
 	 * Mainly our aim is to get a clean Excel report.
+	 * <p>
+	 * JasperReports 7 removed the legacy exporter parameters ({@code JRXlsAbstractExporterParameter}), so the settings are now passed as an exporter configuration.
 	 */
-	private void setStandardParameters()
+	public static SimpleXlsReportConfiguration createStandardConfiguration()
 	{
-		// TODO: use the modern API, but note that we can't mix calls to this deprecated API with calls to the new one.
+		final SimpleXlsReportConfiguration configuration = new SimpleXlsReportConfiguration();
 
 		// Set a password to protect the locked cells.
-		// NOTE: if no password is set, the cells which are marked as locked won't be locked.
-		// NOTE2: instead of using a random password, it's better to have a well known one because we are setting the password only to protect the cells from writting and NOT to secure the document.
-		// setParameter(JRXlsAbstractExporterParameter.PASSWORD, UUID.randomUUID().toString());
-		setParameter(JRXlsAbstractExporterParameter.PASSWORD, "unlock");
+		configuration.setPassword(DEFAULT_PASSWORD);
 
 		// Take out as much graphics & formatting as possible.
 		// Our aim is to get a clean Excel file.
-		setParameter(JRXlsAbstractExporterParameter.IS_IGNORE_GRAPHICS, true);
-		setParameter(JRXlsAbstractExporterParameter.IS_IGNORE_CELL_BACKGROUND, true);
-		setParameter(JRXlsAbstractExporterParameter.IS_IGNORE_CELL_BORDER, true);
-		setParameter(JRXlsAbstractExporterParameter.IS_COLLAPSE_ROW_SPAN, true);
-		setParameter(JRXlsAbstractExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_COLUMNS, true);
-		setParameter(JRXlsAbstractExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS, true);
-		setParameter(JRXlsAbstractExporterParameter.MAXIMUM_ROWS_PER_SHEET, SpreadsheetVersion.EXCEL97.getLastRowIndex());
+		configuration.setIgnoreGraphics(true);
+		configuration.setIgnoreCellBackground(true);
+		configuration.setIgnoreCellBorder(true);
+		configuration.setCollapseRowSpan(true);
+		configuration.setRemoveEmptySpaceBetweenColumns(true);
+		configuration.setRemoveEmptySpaceBetweenRows(true);
+		configuration.setMaxRowsPerSheet(SpreadsheetVersion.EXCEL97.getLastRowIndex());
+
+		return configuration;
 	}
 
 	@Override

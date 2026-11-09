@@ -27,7 +27,7 @@ import net.sf.jasperreports.engine.JasperReportsContext;
 import net.sf.jasperreports.engine.export.Cut;
 import net.sf.jasperreports.engine.export.CutsInfo;
 import net.sf.jasperreports.engine.export.ExporterFilter;
-import net.sf.jasperreports.engine.export.JRXlsExporterNature;
+import net.sf.jasperreports.poi.export.JRXlsExporterNature;
 
 import java.util.Map;
 
