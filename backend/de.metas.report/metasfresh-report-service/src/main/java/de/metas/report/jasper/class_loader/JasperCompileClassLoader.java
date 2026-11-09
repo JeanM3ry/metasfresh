@@ -22,6 +22,7 @@ package de.metas.report.jasper.class_loader;
  * #L%
  */
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
@@ -35,6 +36,7 @@ import lombok.NonNull;
 import lombok.Singular;
 import lombok.ToString;
 import lombok.Value;
+import net.sf.jasperreports.engine.JRConstants;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.Util;
@@ -196,7 +198,7 @@ public class JasperCompileClassLoader extends ClassLoader
 			return BooleanWithReason.trueBecause(hashFile + " is missing or it cannot be read");
 		}
 
-		final String jrxmlFileHashCurrent = hashFileContent(jrxmlFile);
+		final String jrxmlFileHashCurrent = computeCacheKey(jrxmlFile);
 		final String jrxmlFileHashSaved = readFileToString(hashFile);
 
 		if (!Objects.equals(jrxmlFileHashSaved, jrxmlFileHashCurrent))
@@ -219,7 +221,28 @@ public class JasperCompileClassLoader extends ClassLoader
 		}
 	}
 
-	private static String hashFileContent(final File file)
+	/**
+	 * The key under which a compiled report is cached: the JRXML's content hash plus the JasperReports version.
+	 * A .jasper file is a serialized JasperReport, so one written by another JasperReports version cannot be loaded;
+	 * including the version makes the cache recompile such entries instead of failing when the library is upgraded.
+	 */
+	@VisibleForTesting
+	static String computeCacheKey(@NonNull final File jrxmlFile)
+	{
+		return hashFileContent(jrxmlFile) + "@" + JASPERREPORTS_VERSION;
+	}
+
+	@VisibleForTesting
+	static final String JASPERREPORTS_VERSION = computeJasperReportsVersion();
+
+	private static String computeJasperReportsVersion()
+	{
+		final String implementationVersion = JasperCompileManager.class.getPackage().getImplementationVersion();
+		return implementationVersion != null ? implementationVersion : String.valueOf(JRConstants.SERIAL_VERSION_UID);
+	}
+
+	@VisibleForTesting
+	static String hashFileContent(final File file)
 	{
 		try
 		{
@@ -326,7 +349,7 @@ public class JasperCompileClassLoader extends ClassLoader
 
 	private static void createHashFile(final File hashFile, final File jrxmlFile) throws IOException
 	{
-		final String jrxmlFileHash = hashFileContent(jrxmlFile);
+		final String jrxmlFileHash = computeCacheKey(jrxmlFile);
 		Files.write(hashFile.toPath(), jrxmlFileHash.getBytes(StandardCharsets.UTF_8));
 	}
 

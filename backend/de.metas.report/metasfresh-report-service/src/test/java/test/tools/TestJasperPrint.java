@@ -35,9 +35,10 @@ import java.net.URL;
 
 
 import de.metas.report.server.OutputType;
-import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.pdf.JRPdfExporter;
 import org.junit.jupiter.api.Disabled;
 
 @Disabled
@@ -102,9 +103,8 @@ public class TestJasperPrint
 		{
 			JRPdfExporter exporter = new JRPdfExporter();
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
-			exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, outputStream);
-			exporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, "UTF8");
+			exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+			exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
 			// JRProperties.setProperty(JRFont.DEFAULT_PDF_FONT_NAME, "arial.ttf");
 			exporter.exportReport();
 			writeBytes(file, outputStream.toByteArray());

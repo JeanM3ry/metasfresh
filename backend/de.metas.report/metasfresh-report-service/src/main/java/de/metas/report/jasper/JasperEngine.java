@@ -1,5 +1,6 @@
 package de.metas.report.jasper;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableSet;
 import de.metas.logging.LogManager;
@@ -19,13 +20,14 @@ import de.metas.util.FileUtil;
 import de.metas.util.Services;
 import lombok.NonNull;
 import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.export.JRXlsAbstractExporterParameter;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.XlsReportConfiguration;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.service.ISysConfigBL;
@@ -397,13 +399,15 @@ public class JasperEngine extends AbstractReportEngine
 				.build();
 	}
 
-	private ReportResult exportAsExcel(final JasperPrint jasperPrint) throws JRException
+	@VisibleForTesting
+	static ReportResult exportAsExcel(final JasperPrint jasperPrint) throws JRException
 	{
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		final MetasJRXlsExporter exporter = new MetasJRXlsExporter();
-		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, out); // Output
-		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint); // Input
+		exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+		exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
+		final SimpleXlsReportConfiguration configuration = MetasJRXlsExporter.createStandardConfiguration();
 
 		// Make sure our cells will be locked by default
 		// and assume that cells which shall not be locked are particularly specified.
@@ -412,20 +416,25 @@ public class JasperEngine extends AbstractReportEngine
 		// there are cases when we don't want the cells to be blocked by password
 		// in those cases we put in jrxml the password property with empty value, which will indicate we don't want password
 		// if there is no such property we take default password. If empty we set no password and if set, we use that password from the report
+		final String passwordProperty = jasperPrint.getProperty(XlsReportConfiguration.PROPERTY_PASSWORD);
 		//noinspection StatementWithEmptyBody
-		if (jasperPrint.getProperty(XlsReportConfiguration.PROPERTY_PASSWORD) == null)
+		if (passwordProperty == null)
 		{
-			// do nothing;
+			// keep the standard password
 		}
-		else if (jasperPrint.getProperty(XlsReportConfiguration.PROPERTY_PASSWORD).isEmpty())
+		else if (passwordProperty.isEmpty())
 		{
-			exporter.setParameter(JRXlsAbstractExporterParameter.PASSWORD, null);
+			// The exporter protects the sheet whenever it resolves a password, even an empty one,
+			// and the report property would be used when the configuration has none. So drop both.
+			configuration.setPassword(null);
+			jasperPrint.removeProperty(XlsReportConfiguration.PROPERTY_PASSWORD);
 		}
 		else
 		{
-			exporter.setParameter(JRXlsAbstractExporterParameter.PASSWORD, jasperPrint.getProperty(XlsReportConfiguration.PROPERTY_PASSWORD));
+			configuration.setPassword(passwordProperty);
 		}
 
+		exporter.setConfiguration(configuration);
 		exporter.exportReport();
 
 		return ReportResult.builder()

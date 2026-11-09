@@ -168,7 +168,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- poi 3.12 is also the version contained in jasperreports 6.2.2 -->
+        <!-- POI 5 is required by jasperreports-excel-poi since JasperReports 7 -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>

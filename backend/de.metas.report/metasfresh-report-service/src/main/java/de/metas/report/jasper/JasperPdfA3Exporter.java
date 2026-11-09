@@ -27,11 +27,11 @@ import lombok.experimental.UtilityClass;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.pdf.JRPdfExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
-import net.sf.jasperreports.export.SimplePdfExporterConfiguration;
-import net.sf.jasperreports.export.type.PdfaConformanceEnum;
+import net.sf.jasperreports.pdf.SimplePdfExporterConfiguration;
+import net.sf.jasperreports.pdf.type.PdfaConformanceEnum;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -95,8 +95,9 @@ public class JasperPdfA3Exporter
 				? jasperPrint.getName()
 				: "Report";
 		config.setMetadataTitle(title);
-		// Tagged PDF is required for PDF/A conformance
-		config.setTagged(Boolean.TRUE);
+		// PDF/A-3B (level B, "basic") does not require a tagged PDF; only the level A variants do.
+		// JasperReports 7 no longer ships tagged PDF export (its default tagger factory rejects it), so it stays off.
+		config.setTagged(Boolean.FALSE);
 
 		exporter.setConfiguration(config);
 		exporter.exportReport();

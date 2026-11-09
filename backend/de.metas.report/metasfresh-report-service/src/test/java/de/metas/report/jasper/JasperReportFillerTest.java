@@ -25,8 +25,8 @@ package de.metas.report.jasper;
 import com.google.common.base.Stopwatch;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
 import org.adempiere.exceptions.AdempiereException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -54,16 +54,18 @@ public class JasperReportFillerTest
 	private static JasperReport loadJasperReport(String name) throws JRException
 	{
 		final Stopwatch stopwatch = Stopwatch.createStarted();
-		final String resourceName = name + ".jasper";
-		final InputStream jasperInputStream = JasperReportFillerTest.class.getClassLoader().getResourceAsStream(resourceName);
-		if (jasperInputStream == null)
+		// Compile from the JRXML rather than loading a committed .jasper file:
+		// a .jasper file is a serialized JasperReport and only loads with the JasperReports version that wrote it.
+		final String resourceName = name + ".jrxml";
+		final InputStream jrxmlInputStream = JasperReportFillerTest.class.getClassLoader().getResourceAsStream(resourceName);
+		if (jrxmlInputStream == null)
 		{
 			throw new RuntimeException("Resource not found: " + resourceName);
 		}
 
-		final JasperReport jasperReport = (JasperReport)JRLoader.loadObject(jasperInputStream);
+		final JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlInputStream);
 		stopwatch.stop();
-		System.out.println("Loaded " + resourceName + " in " + stopwatch);
+		System.out.println("Compiled " + resourceName + " in " + stopwatch);
 
 		return jasperReport;
 	}
